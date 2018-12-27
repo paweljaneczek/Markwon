@@ -3,6 +3,15 @@ package io.noties.markwon.core;
 import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.AttrRes;
+import android.support.annotation.ColorInt;
+import android.support.annotation.FloatRange;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.Px;
+import android.support.annotation.Size;
 import android.text.TextPaint;
 
 import androidx.annotation.ColorInt;
@@ -172,6 +181,10 @@ public class MarkwonTheme {
     // @since 1.1.0
     protected final Typeface headingTypeface;
 
+    protected final Typeface[] headingTypefaces;
+
+    protected final int[] headingTextColors;
+
     // by default, we use standard multipliers from the HTML spec (see HEADING_SIZES for values).
     // this library supports 6 heading sizes, so make sure the array you pass here has 6 elements.
     // @since 1.1.0
@@ -203,6 +216,8 @@ public class MarkwonTheme {
         this.headingBreakHeight = builder.headingBreakHeight;
         this.headingBreakColor = builder.headingBreakColor;
         this.headingTypeface = builder.headingTypeface;
+        this.headingTextColors = builder.headingTextColors;
+        this.headingTypefaces = builder.headingTypefaces;
         this.headingTextSizeMultipliers = builder.headingTextSizeMultipliers;
         this.thematicBreakColor = builder.thematicBreakColor;
         this.thematicBreakHeight = builder.thematicBreakHeight;
@@ -403,11 +418,18 @@ public class MarkwonTheme {
     }
 
     public void applyHeadingTextStyle(@NonNull Paint paint, @IntRange(from = 1, to = 6) int level) {
-        if (headingTypeface == null) {
+        final Typeface[] typefaces = headingTypefaces != null
+                ? headingTypefaces
+                : new Typeface[0];
+
+        if (headingTypeface == null && typefaces.length == 0) {
             paint.setFakeBoldText(true);
+        } else if (typefaces.length == 6) {
+            paint.setTypeface(typefaces[level - 1]);
         } else {
             paint.setTypeface(headingTypeface);
         }
+
         final float[] textSizes = headingTextSizeMultipliers != null
                 ? headingTextSizeMultipliers
                 : HEADING_SIZES;
@@ -419,6 +441,13 @@ public class MarkwonTheme {
                     Locale.US,
                     "Supplied heading level: %d is invalid, where configured heading sizes are: `%s`",
                     level, Arrays.toString(textSizes)));
+        }
+
+        final int[] textColors = headingTextColors != null
+                ? headingTextColors
+                : new int[0];
+        if (textColors.length == 6) {
+            paint.setColor(textColors[level - 1]);
         }
     }
 
@@ -474,7 +503,9 @@ public class MarkwonTheme {
         private int codeBlockTextSize; // @since 3.0.0
         private int headingBreakHeight = -1;
         private int headingBreakColor;
+        private int[] headingTextColors;
         private Typeface headingTypeface;
+        private Typeface[] headingTypefaces;
         private float[] headingTextSizeMultipliers;
         private int thematicBreakColor;
         private int thematicBreakHeight = -1;
@@ -627,6 +658,12 @@ public class MarkwonTheme {
             return this;
         }
 
+        @NonNull
+        public Builder headingTextColors(@Size(6) @NonNull int[] headingTextColors) {
+            this.headingTextColors = headingTextColors;
+            return this;
+        }
+
         /**
          * @param headingTypeface Typeface to use for heading elements
          * @return self
@@ -635,6 +672,12 @@ public class MarkwonTheme {
         @NonNull
         public Builder headingTypeface(@NonNull Typeface headingTypeface) {
             this.headingTypeface = headingTypeface;
+            return this;
+        }
+
+        @NonNull
+        public Builder headingTypefaces(@Size(6) @NonNull Typeface[] headingTypefaces) {
+            this.headingTypefaces = headingTypefaces;
             return this;
         }
 
