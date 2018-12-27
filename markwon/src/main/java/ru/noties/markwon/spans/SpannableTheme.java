@@ -7,7 +7,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.AttrRes;
 import android.support.annotation.ColorInt;
-import android.support.annotation.Dimension;
 import android.support.annotation.FloatRange;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
@@ -182,6 +181,10 @@ public class SpannableTheme {
     // @since 1.1.0
     protected final Typeface headingTypeface;
 
+    protected final Typeface[] headingTypefaces;
+
+    protected final int[] headingTextColors;
+
     // by default, we use standard multipliers from the HTML spec (see HEADING_SIZES for values).
     // this library supports 6 heading sizes, so make sure the array you pass here has 6 elements.
     // @since 1.1.0
@@ -237,6 +240,8 @@ public class SpannableTheme {
         this.headingBreakHeight = builder.headingBreakHeight;
         this.headingBreakColor = builder.headingBreakColor;
         this.headingTypeface = builder.headingTypeface;
+        this.headingTextColors = builder.headingTextColors;
+        this.headingTypefaces = builder.headingTypefaces;
         this.headingTextSizeMultipliers = builder.headingTextSizeMultipliers;
         this.scriptTextSizeRatio = builder.scriptTextSizeRatio;
         this.thematicBreakColor = builder.thematicBreakColor;
@@ -394,11 +399,18 @@ public class SpannableTheme {
     }
 
     public void applyHeadingTextStyle(@NonNull Paint paint, @IntRange(from = 1, to = 6) int level) {
-        if (headingTypeface == null) {
+        final Typeface[] typefaces = headingTypefaces != null
+                ? headingTypefaces
+                : new Typeface[0];
+
+        if (headingTypeface == null && typefaces.length == 0) {
             paint.setFakeBoldText(true);
+        } else if (typefaces.length == 6) {
+            paint.setTypeface(typefaces[level - 1]);
         } else {
             paint.setTypeface(headingTypeface);
         }
+
         final float[] textSizes = headingTextSizeMultipliers != null
                 ? headingTextSizeMultipliers
                 : HEADING_SIZES;
@@ -410,6 +422,13 @@ public class SpannableTheme {
                     Locale.US,
                     "Supplied heading level: %d is invalid, where configured heading sizes are: `%s`",
                     level, Arrays.toString(textSizes)));
+        }
+
+        final int[] textColors = headingTextColors != null
+                ? headingTextColors
+                : new int[0];
+        if (textColors.length == 6) {
+            paint.setColor(textColors[level - 1]);
         }
     }
 
@@ -549,7 +568,9 @@ public class SpannableTheme {
         private int codeTextSize;
         private int headingBreakHeight = -1;
         private int headingBreakColor;
+        private int[] headingTextColors;
         private Typeface headingTypeface;
+        private Typeface[] headingTypefaces;
         private float[] headingTextSizeMultipliers;
         private float scriptTextSizeRatio;
         private int thematicBreakColor;
@@ -698,6 +719,12 @@ public class SpannableTheme {
             return this;
         }
 
+        @NonNull
+        public Builder headingTextColors(@Size(6) @NonNull int[] headingTextColors) {
+            this.headingTextColors = headingTextColors;
+            return this;
+        }
+
         /**
          * @param headingTypeface Typeface to use for heading elements
          * @return self
@@ -706,6 +733,12 @@ public class SpannableTheme {
         @NonNull
         public Builder headingTypeface(@NonNull Typeface headingTypeface) {
             this.headingTypeface = headingTypeface;
+            return this;
+        }
+
+        @NonNull
+        public Builder headingTypefaces(@Size(6) @NonNull Typeface[] headingTypefaces) {
+            this.headingTypefaces = headingTypefaces;
             return this;
         }
 
