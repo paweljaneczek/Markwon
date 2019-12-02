@@ -3,15 +3,6 @@ package io.noties.markwon.core;
 import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.support.annotation.AttrRes;
-import android.support.annotation.ColorInt;
-import android.support.annotation.FloatRange;
-import android.support.annotation.IntRange;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.Px;
-import android.support.annotation.Size;
 import android.text.TextPaint;
 
 import androidx.annotation.ColorInt;
